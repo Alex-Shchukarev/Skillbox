@@ -43,7 +43,7 @@
 # Это пример применения SOLID принципа (см https://goo.gl/GFMoaI) в архитектуре программ.
 # Точнее, в этом случае важен принцип единственной ответственности - https://goo.gl/rYb3hT
 
-from mastermind_engine import make_wish_num, check_num
+from mastermind_engine import make_wish_num, check_num, check_input
 from termcolor import cprint, colored
 
 cprint('Добро пожаловать в игру - Быки и коровы!', color='red')
@@ -53,6 +53,9 @@ user_hod, user_number = 0, ''
 while True:
     cprint('Введите 4-х значное число: ', color='green')
     user_number = input(colored('Число должно состоять из различных цифр ', color='yellow'))
+    if check_input(user_number) == False:
+        cprint('Некорректный ввод!', color='red')
+        continue
     user_hod += 1
     user_rez = check_num(user_number)
     cprint('быки - {}, коровы - {}'.format(user_rez['bulls'], user_rez['cows']), color='blue')
