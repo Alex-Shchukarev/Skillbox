@@ -73,6 +73,11 @@ class Man:
         house.food -= 25
         print('{} поел'.format(self.name))
 
+    def branch_cat(self, cat):
+        self.foodness -= 10
+        self.happy += 5
+        print('{} погладил кота {}'.format(self.name, cat.name))
+
 
 class Husband(Man):
 
@@ -82,7 +87,7 @@ class Husband(Man):
     def __str__(self):
         return super().__str__()
 
-    def act(self, house):
+    def act(self, house, cat):
         if self.foodness <= 0:
             print('{} - умер от голода'.format(self.name))
             return
@@ -93,7 +98,7 @@ class Husband(Man):
         if self.foodness <= 15:
             self.eat(house=house)
         elif self.happy <= 15:
-            self.gaming()
+            self.branch_cat(cat=cat)
         elif house.money <= 350:
             self.work(house=house)
         elif setting == 1:
@@ -102,6 +107,8 @@ class Husband(Man):
             self.gaming()
         elif setting == 3:
             self.work(house=house)
+        elif setting == 4:
+            self.branch_cat(cat=cat)
         else:
             self.work(house=house)
 
@@ -118,6 +125,9 @@ class Husband(Man):
         self.foodness -= 10
         print('{} поиграл в WoT'.format(self.name))
 
+    def branch_cat(self, cat):
+        super().branch_cat(cat=cat)
+
 
 class Wife(Man):
 
@@ -127,18 +137,18 @@ class Wife(Man):
     def __str__(self):
         return super().__str__()
 
-    def act(self, house):
+    def act(self, house, cat):
         if self.foodness <= 0:
             print('{} - умерла от голода'.format(self.name))
             return
         elif self.happy <= 10:
             print('{} - умерла от депрессии'.format(self.name))
             return
-        setting = randint(1, 5)
+        setting = randint(1, 7)
         if self.foodness <= 15:
             self.eat(house=house)
         elif self.happy <= 15:
-            self.buy_fur_coat(house=house)
+            self.branch_cat(cat=cat)
         elif house.dirt >= 85:
             self.clean_house(house=house)
         elif setting == 1:
@@ -149,6 +159,8 @@ class Wife(Man):
             self.clean_house(house=house)
         elif setting == 4:
             self.shopping(house=house)
+        elif setting == 5:
+            self.branch_cat(cat=cat)
         else:
             self.shopping(house=house)
 
@@ -156,10 +168,11 @@ class Wife(Man):
         super().eat(house=house)
 
     def shopping(self, house):
-        if house.money >= 50:
+        if house.money >= 75:
             self.foodness -= 10
             house.food += 50
-            house.money -= 50
+            house.miska += 25
+            house.money -= 75
             print('{} сходила в магазин и купила еды'.format(self.name))
         else:
             print('Нет денег на продукты')
@@ -177,6 +190,9 @@ class Wife(Man):
         self.foodness -= 10
         house.dirt -= 100
         print('{} убралась в доме'.format(self.name))
+
+    def branch_cat(self, cat):
+        super().branch_cat(cat=cat)
 
 
 class Cat:
@@ -196,7 +212,7 @@ class Cat:
 
     def do_dirty(self, house):
         self.fullness -= 10
-        house.dirty += 5
+        house.dirt += 5
         cprint('{} подрал обои'.format(self.name), color='green')
 
     def act(self, house):
@@ -219,20 +235,21 @@ class Cat:
         return 'Кот {}, сытость {}'.format(self.name, self.fullness)
 
 
-
-
 home = House()
 serge = Husband(name='Сережа')
 masha = Wife(name='Маша')
+tom = Cat(name='Том')
 
-for day in range(365):
+for day in range(1, 366):
     cprint('================== День {} =================='.format(day), color='red')
-    serge.act(house=home)
-    masha.act(house=home)
+    serge.act(house=home, cat=tom)
+    masha.act(house=home, cat=tom)
+    tom.act(house=home)
     home.generate_dirt()
     cprint(serge, color='cyan')
     cprint(masha, color='cyan')
-    cprint(home, color='cyan')
+    cprint(tom, color='green')
+    cprint(home, color='yellow')
 
 # TODO после реализации первой части - отдать на проверку учителю
 
