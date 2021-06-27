@@ -177,6 +177,10 @@ class Wife(Man):
         print('{} убралась в доме'.format(self.name))
 
 
+class Cat:
+    pass
+
+
 home = House()
 serge = Husband(name='Сережа')
 masha = Wife(name='Маша')
