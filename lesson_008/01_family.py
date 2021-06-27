@@ -48,12 +48,14 @@ class House:
         self.money = 100
         self.food = 50
         self.dirt = 0
+        self.miska = 30
 
     def generate_dirt(self):
         self.dirt += 5
 
     def __str__(self):
-        return 'В доме: денег - {}, еды - {}, уровень грязи - {}'.format(self.money, self.food, self.dirt)
+        return 'В доме: денег - {}, еды - {}, уровень грязи - {}, кошачьего корма - {}'.format(
+            self.money, self.food, self.dirt, self.miska)
 
 
 class Man:
@@ -178,7 +180,45 @@ class Wife(Man):
 
 
 class Cat:
-    pass
+
+    def __init__(self, name):
+        self.name = name
+        self.fullness = 30
+
+    def eat(self, house):
+        self.fullness += 20
+        house.miska -= 10
+        cprint('{} поел'.format(self.name), color='blue')
+
+    def sleep(self):
+        self.fullness -= 10
+        cprint('{} поспал'.format(self.name), color='green')
+
+    def do_dirty(self, house):
+        self.fullness -= 10
+        house.dirty += 5
+        cprint('{} подрал обои'.format(self.name), color='green')
+
+    def act(self, house):
+        if self.fullness == 0:
+            cprint('Кот {} умер от голода'.format(self.name), color='red')
+            return
+        dice = randint(1, 5)
+        if self.fullness <= 15:
+            self.eat(house=house)
+        elif dice == 1:
+            self.do_dirty(house=house)
+        elif dice == 2:
+            self.eat(house=house)
+        elif dice == 3:
+            self.sleep()
+        else:
+            self.sleep()
+
+    def __str__(self):
+        return 'Кот {}, сытость {}'.format(self.name, self.fullness)
+
+
 
 
 home = House()
