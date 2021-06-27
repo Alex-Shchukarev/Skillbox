@@ -68,9 +68,9 @@ class Man:
     def __str__(self):
         return 'Меня зовут {}, моя сытость {}, мой уровень счастья {}'.format(self.name, self.foodness, self.happy)
 
-    def eat(self, house):
-        self.foodness += 25
-        house.food -= 25
+    def eat(self, house=None, *args, **kwargs):
+        self.foodness += 30
+        house.food -= 30
         print('{} поел'.format(self.name))
 
     def branch_cat(self, cat):
@@ -87,20 +87,22 @@ class Husband(Man):
     def __str__(self):
         return super().__str__()
 
-    def act(self, house, cat):
+    def act(self, house, child, cat):
         if self.foodness <= 0:
             print('{} - умер от голода'.format(self.name))
             return
         elif self.happy <= 10:
             print('{} - умер от депрессии'.format(self.name))
             return
-        setting = randint(1, 5)
-        if self.foodness <= 15:
+        setting = randint(1, 7)
+        if self.foodness <= 20:
             self.eat(house=house)
         elif self.happy <= 15:
             self.branch_cat(cat=cat)
-        elif house.money <= 350:
+        elif house.money <= 400:
             self.work(house=house)
+        elif child.foodness <= 15:
+            child.eat(house=house, parent=self)
         elif setting == 1:
             self.eat(house=house)
         elif setting == 2:
@@ -109,10 +111,12 @@ class Husband(Man):
             self.work(house=house)
         elif setting == 4:
             self.branch_cat(cat=cat)
+        elif setting == 5:
+            child.eat(house=house, parent=self)
         else:
             self.work(house=house)
 
-    def eat(self, house):
+    def eat(self, house=None, *args, **kwargs):
         super().eat(house=house)
 
     def work(self, house):
@@ -137,7 +141,7 @@ class Wife(Man):
     def __str__(self):
         return super().__str__()
 
-    def act(self, house, cat):
+    def act(self, house, child, cat):
         if self.foodness <= 0:
             print('{} - умерла от голода'.format(self.name))
             return
@@ -145,12 +149,16 @@ class Wife(Man):
             print('{} - умерла от депрессии'.format(self.name))
             return
         setting = randint(1, 7)
-        if self.foodness <= 15:
+        if self.foodness <= 20:
             self.eat(house=house)
         elif self.happy <= 15:
             self.branch_cat(cat=cat)
+        elif child.foodness <= 15:
+            child.eat(house=house, parent=self)
         elif house.dirt >= 85:
             self.clean_house(house=house)
+        elif house.food <= 100:
+            self.shopping(house=house)
         elif setting == 1:
             self.eat(house=house)
         elif setting == 2:
@@ -160,19 +168,21 @@ class Wife(Man):
         elif setting == 4:
             self.shopping(house=house)
         elif setting == 5:
+            child.eat(house=house, parent=self)
+        elif setting == 6:
             self.branch_cat(cat=cat)
         else:
             self.shopping(house=house)
 
-    def eat(self, house):
+    def eat(self, house=None, *args, **kwargs):
         super().eat(house=house)
 
     def shopping(self, house):
-        if house.money >= 75:
+        if house.money >= 200:
             self.foodness -= 10
-            house.food += 50
+            house.food += 175
             house.miska += 25
-            house.money -= 75
+            house.money -= 200
             print('{} сходила в магазин и купила еды'.format(self.name))
         else:
             print('Нет денег на продукты')
@@ -235,19 +245,54 @@ class Cat:
         return 'Кот {}, сытость {}'.format(self.name, self.fullness)
 
 
+class Child(Man):
+
+    def __init__(self, name):
+        super().__init__(name=name)
+
+    def __str__(self):
+        return super().__str__()
+
+    def act(self, house, parent):
+        if self.foodness <= 0:
+            print('Ребенок {} умер от голода'.format(self.name))
+            return
+        dice = randint(1, 3)
+        if dice == 1:
+            self.eat(house=house, parent=parent)
+        elif dice == 2:
+            self.sleep()
+        else:
+            self.sleep()
+
+    def eat(self, house=None, parent=None, *args, **kwargs):
+        self.foodness += 10
+        house.food -= 10
+        parent.foodness -= 10
+        print('Ребенка {} покормил(-а) {}'.format(self.name, parent.name))
+
+    def sleep(self):
+        self.foodness -= 10
+        print('Ребенок {} поспал'.format(self.name))
+
+
 home = House()
 serge = Husband(name='Сережа')
 masha = Wife(name='Маша')
+baby = Child(name='Алекс')
+parents = [serge, masha]
 tom = Cat(name='Том')
 
 for day in range(1, 366):
     cprint('================== День {} =================='.format(day), color='red')
-    serge.act(house=home, cat=tom)
-    masha.act(house=home, cat=tom)
+    serge.act(house=home, child=baby, cat=tom)
+    masha.act(house=home, child=baby, cat=tom)
+    baby.act(house=home, parent=parents[randint(0, 1)])
     tom.act(house=home)
     home.generate_dirt()
     cprint(serge, color='cyan')
     cprint(masha, color='cyan')
+    cprint(baby, color='red')
     cprint(tom, color='green')
     cprint(home, color='yellow')
 
@@ -306,24 +351,6 @@ class Cat:
 #
 # отличия от взрослых - кушает максимум 10 единиц еды,
 # степень счастья  - не меняется, всегда ==100 ;)
-
-class Child:
-
-    def __init__(self):
-        pass
-
-    def __str__(self):
-        return super().__str__()
-
-    def act(self):
-        pass
-
-    def eat(self):
-        pass
-
-    def sleep(self):
-        pass
-
 
 # TODO после реализации второй части - отдать на проверку учителем две ветки
 
