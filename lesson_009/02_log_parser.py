@@ -27,36 +27,46 @@
 # Для этого пригодится шаблон проектирование "Шаблонный метод" см https://goo.gl/Vz4828
 
 class LogPars:
+    date_time = {'year': 5, 'month': 8, 'day': 11, 'hour': 14, 'minute': 17, 'second': 20}
 
-    def __init__(self, filename):
-        self.file_name = filename
-        self.content = {}
+    def __init__(self, file_name, rez_file, param, event):
+        self.file_name = file_name
+        self.rez_file = rez_file
+        self.param = param
+        self.event = event
+        self.start_pos = ''
+        self.count = 0
 
     def read_file_line(self):
         with open(self.file_name, 'r', encoding='utf8') as file:
             for line in file:
-                spisok = line.split()
-                self.convert_content(spisok)
+                self.cut_to_datetime(line)
 
-    def convert_content(self, spisok):
-        date, time, req = spisok[0].split('-'), spisok[1].split(':'), spisok[2]
-        self.content['year'], self.content['month'], self.content['day'] = date[0][1:], date[1], date[2]
-        self.content['hour'], self.content['minute'], self.content['second'] = time[0], time[1], time[2][:-1]
-        self.content['req'] = req
+    def cut_to_datetime(self, line):
+        current_pos = line[:LogPars.date_time[self.param]]
+        srv_answer = line[29:].strip()
+        if current_pos == self.start_pos:
+            if srv_answer == self.event:
+                self.count += 1
+        elif self.start_pos == '':
+            self.start_pos = current_pos
+            if srv_answer == self.event:
+                self.count += 1
+        else:
+            self.write_rezult(current_pos, srv_answer)
 
-    def count_event(self, param='minute', req='NOK'):
-        for i in range(len(self.content)):
-            if self.content[i]['req'] == req:
-                for key in self.content[i]:
-                    if key != param:
-                        print('['+self.content[i][key])
+    def write_rezult(self, current_pos, srv_answer):
+        with open(self.rez_file, 'a', encoding='utf8') as fr:
+            fr.write(self.start_pos + '] ' + str(self.count) + '\n')
+            self.start_pos, self.count = current_pos, 0
+            if srv_answer == self.event:
+                self.count += 1
+
+    def write_end(self):
+        with open(self.rez_file, 'a', encoding='utf8') as fr:
+            fr.write(self.start_pos + '] ' + str(self.count) + '\n')
 
 
-
-    def write_rezult(self):
-        pass
-
-
-lp = LogPars('events.txt')
+lp = LogPars('events.txt', 'rez-events.txt', 'hour', 'OK')
 lp.read_file_line()
-lp.count_event()
+lp.write_end()
