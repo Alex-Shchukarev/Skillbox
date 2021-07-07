@@ -38,7 +38,8 @@ import os, time, shutil
 # Основная функция должна брать параметром имя zip-файла и имя целевой папки.
 # Для этого пригодится шаблон проектирование "Шаблонный метод" см https://goo.gl/Vz4828
 
-import os, time, shutil
+import os
+
 
 class RebuilderZipDir:
 
@@ -46,5 +47,26 @@ class RebuilderZipDir:
         self.file_name = file_name
         self.file_exit = exit_file
 
+    def read_dir(self):
+        for root, dirs, files in os.walk(self.file_name):
+            print(root, dirs, files)
+            for file in files:
+                time_creation = os.path.getctime(root+'\\'+file)
+                result = time.gmtime(time_creation)
+                print(file, 'был создан', result.tm_year, result.tm_mon, result.tm_mday)
 
 
+# print(os.name)
+# print(os.environ['PROCESSOR_LEVEL'])
+# print(os.getcwd())
+# os.mkdir("test")
+# path = r'C:\pytest'
+# os.mkdir(path)
+# path = r'C:\pytest\2021\07\07'
+# os.makedirs(path)
+# os.remove('C:\pytest')
+# os.startfile(r'C:\Users\Александр\Desktop\Запись на прием.pdf')
+
+
+rd = RebuilderZipDir('icons', 'icons_by_date')
+rd.read_dir()
