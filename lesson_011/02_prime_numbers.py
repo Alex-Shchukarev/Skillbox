@@ -48,7 +48,7 @@ class PrimeNumbers:
             raise StopIteration()
 
 
-prime_number_iterator = PrimeNumbers(n=100)
+prime_number_iterator = PrimeNumbers(n=10)
 for number in prime_number_iterator:
     print(number)
 
@@ -68,8 +68,7 @@ def prime_numbers_generator(n):
             prime_numbers.append(number)
 
 
-for number in prime_numbers_generator(n=10):
-    print(number)
+
 
 
 # Часть 3
@@ -87,3 +86,41 @@ for number in prime_numbers_generator(n=10):
 # простых счастливых палиндромных чисел и так далее. Придумать не менее 2х способов.
 #
 # Подсказка: возможно, нужно будет добавить параметр в итератор/генератор.
+
+def filter_v1(n):
+    n = str(n)
+    long_num = len(n)
+    if long_num < 2:
+        return False
+    separator = long_num // 2
+    first_part = list(n[:separator])
+    if long_num % 2 == 0:
+        second_part = list(n[separator:])
+    else:
+        second_part = list(n[separator + 1:])
+    lst_first_part = map(int, first_part)
+    lst_second_part = map(int, second_part)
+    if sum(lst_first_part) == sum(lst_second_part):
+        return True
+    else:
+        return False
+
+def filter_v2(n):
+    n = str(n)
+    long_num = len(n)
+    if long_num < 2:
+        return False
+    separator = long_num // 2
+    first_part = list(n[:separator])
+    if long_num % 2 == 0:
+        second_part = list(n[separator:])
+        second_part = second_part[::-1]
+    else:
+        second_part = list(n[separator + 1:])
+        second_part = second_part[::-1]
+    if first_part == second_part:
+        return True
+    else:
+        return False
+
+
