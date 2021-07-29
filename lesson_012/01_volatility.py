@@ -73,41 +73,56 @@
 #     def run(self):
 #         <обработка данных>
 import os
+from operator import itemgetter
 
 
-class TickerVolatility
-
-tiker_vol = []
+class TickerVolatility:
 
     def __init__(self, file_name):
         self.file_name = file_name
         self.ticker_name = ''
         self.volatility = 0
 
-
     def run(self):
         price_buf = set()
         with open('trades\\'+self.file_name, 'r', encoding='utf8') as fef:
             for line in fef:
                 line = line.strip()
-                secid, tradetime, price, quantity = line.split(',')
-                if price.isalpha() == False:
-                    self.ticker_name = secid
+                secide, tradetime, price, quantity = line.split(',')
+                if not price.isalpha():
+                    self.ticker_name = secide
                     price = float(price)
                     price_buf.add(round(price, 1))
             price_max = max(price_buf)
             price_min = min(price_buf)
             average_price = (price_max + price_min) / 2
-            volatility = ((price_max - price_min) / average_price) * 100
-        tiker_vol.append([secid, round(volatility, 1)])
+            self.volatility = ((price_max - price_min) / average_price) * 100
+        return self.ticker_name, round(self.volatility, 2)
 
-rezult_tv = list()
-rezult_tv_zero = list()
+
+rezult_tv, rezult_tv_zero = list(), list()
+rezult_tv_min, rezult_tv_max = list(), list()
+
 list_files = os.listdir('trades')
 for file in list_files:
     tv_file = TickerVolatility(file)
-    tv_file.run()
+    secid, volatility = tv_file.run()
+    if volatility == 0:
+        rezult_tv_zero.append({'ticker_name': secid, 'volatility': volatility})
+    else:
+        rezult_tv.append({'ticker_name': secid, 'volatility': volatility})
 
-for rez in TickerVolatility.tiker_vol:
+rezult_tv_min = sorted(rezult_tv, key=itemgetter('volatility'), reverse=False)
+rezult_tv_max = sorted(rezult_tv, key=itemgetter('volatility'), reverse=True)
 
-    print(rez)
+print('Максимальная волатильность:')
+for i in range(3):
+    print('{elem1:^7} - {elem2:^8}%'
+          .format(elem1=rezult_tv_max[i]['ticker_name'], elem2=rezult_tv_max[i]['volatility']))
+print('Минимальная волатильность:')
+for i in range(3):
+    print('{elem1:^7} - {elem2:^8}%'
+          .format(elem1=rezult_tv_min[i]['ticker_name'], elem2=rezult_tv_min[i]['volatility']))
+print('Нулевая волатильность:')
+for i in range(len(rezult_tv_zero)):
+    print('{elem1}, '.format(elem1=rezult_tv_zero[i]['ticker_name']), end='')
